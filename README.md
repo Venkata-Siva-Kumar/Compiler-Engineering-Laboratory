@@ -22,15 +22,6 @@ YACC (Bison) – Parser Generator
 GCC Compiler
 
 Linux / WSL Environment
-______________________________________________________
-📂 Repository Structure
-
-Compiler-Engineering-Laboratory/
-│
-├── EXP-1   → Lexical Analyzer Programs
-├── EXP-2   → Conditional Statements Parser (IF, SWITCH)
-├── EXP-3   → Looping Statements Parser (FOR, WHILE, DO-WHILE)
-└── README.md
 
 ______________________________________________________
 📁 Each Experiment Folder Contains
@@ -67,11 +58,8 @@ Syntax Validation of C Constructs
 
 ______________________________________________________
 
-<div align="center">
 👨‍💻 Author
 
-Mariyala Venkata Siva Kumar
-B.Tech – Computer Science and Engineering
-Compiler Engineering Laboratory
-
-</div>
+Mariyala Venkata Siva Kumar\n
+B.Tech – Computer Science and Engineering\n
+Compiler Engineering Laboratory\n
