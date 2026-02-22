@@ -10,8 +10,10 @@ int yyerror(char*);
 
 %%
 
-STMT : statement       											{ printf("Input Recognized\n"); YYACCEPT;};
-statement :	if_stmt | switch_stmt								;
+STMT : statement       											{ printf("Input Recognized\n"); exit(0);};
+statement : if_stmt												{ printf("IF Statement Recognized\n"); }
+          | switch_stmt											{ printf("SWITCH Statement Recognized\n"); }
+          ;
 
 /* IF STMT */
 if_stmt : IF '(' cond ')' block
