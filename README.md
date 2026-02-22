@@ -60,6 +60,6 @@ ______________________________________________________
 
 👨‍💻 Author
 
-Mariyala Venkata Siva Kumar\n
-B.Tech – Computer Science and Engineering\n
-Compiler Engineering Laboratory\n
+Mariyala Venkata Siva Kumar
+B.Tech – Computer Science and Engineering
+Compiler Engineering Laboratory
