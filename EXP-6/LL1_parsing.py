@@ -56,5 +56,5 @@ for non_terminal in g:
 print("LL(1) Parsing Table:")
 for nt in table:
     for t in table[nt]:
-        print(f"T[{nt}][{t}] = {nt} -> {table[nt][t]}",end="\t")
+        print("T[{0}][{1}] = {0} -> {2}".format(nt,t,table[nt][t]),end="\t")
     print()
