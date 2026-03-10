@@ -1,22 +1,24 @@
+"""
+S → aA
+A → b
+
 table = {
-('E','num'): ['T',"E'"], ('E','('): ['T',"E'"],
+            ('S','a'): ['a','A'],
+            ('A','b'): ['b']
+        }
+"""
+table = {}
 
-("E'",'-'): ['-','T',"E'"], ("E'",')'): ['@'], ("E'",'$'): ['@'],
+n = int(input("Enter number of table entries: "))
+print("Enter entries as: NonTerminal Terminal Production(RHS only) ")
 
-('T','num'): ['F',"T'"], ('T','('): ['F',"T'"],
+for _ in range(n):
+    nt, t, prod = input().split()
+    table[(nt, t)] = prod
 
-("T'",'/'): ['/','F',"T'"], ("T'",'-'): ['@'], ("T'",')'): ['@'], ("T'",'$'): ['@'],
+inp = list(input("Enter a Input String : "))
 
-('F','num'): ['P',"F'"], ('F','('): ['P',"F'"],
-
-("F'",'^'): ['^','F'], ("F'",'/'): ['@'], ("F'",'-'): ['@'], ("F'",')'): ['@'], ("F'",'$'): ['@'],
-
-('P','num'): ['num'], ('P','('): ['(','E',')']
-}
-
-inp = input("Enter input: ").split()
-
-stack = ['$', 'E']
+stack = ['$', 'S']
 i = 0
 step = 1
 
