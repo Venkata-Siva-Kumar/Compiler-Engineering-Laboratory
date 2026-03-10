@@ -1,60 +1,54 @@
-from collections import defaultdict
+table = {
+('E','num'): ['T',"E'"], ('E','('): ['T',"E'"],
 
-# Your grammar and FIRST/FOLLOW sets
-g = {
-    'G': ['E'],
-    'E': ['TZ'],
-    'Z': ['+TZ', '-TZ', '@'],
-    'T': ['FY'],
-    'Y': ['*FY', '/FY', '@'],
-    'F': ['(E)', 'i', 'n']
+("E'",'-'): ['-','T',"E'"], ("E'",')'): ['@'], ("E'",'$'): ['@'],
+
+('T','num'): ['F',"T'"], ('T','('): ['F',"T'"],
+
+("T'",'/'): ['/','F',"T'"], ("T'",'-'): ['@'], ("T'",')'): ['@'], ("T'",'$'): ['@'],
+
+('F','num'): ['P',"F'"], ('F','('): ['P',"F'"],
+
+("F'",'^'): ['^','F'], ("F'",'/'): ['@'], ("F'",'-'): ['@'], ("F'",')'): ['@'], ("F'",'$'): ['@'],
+
+('P','num'): ['num'], ('P','('): ['(','E',')']
 }
 
-first = {
-    'Z': ['+', '-', '@'],
-    'T': ['(', 'i', 'n'],
-    'E': ['(', 'i', 'n'],
-    'F': ['(', 'i', 'n'],
-    'Y': ['*', '/', '@'],
-    'G': ['(', 'i', 'n']
-}
+inp = input("Enter input: ").split()
 
-follow = {
-    'G': ['$', ')'],
-    'E': ['$', ')'],
-    'Z': ['$', ')'],
-    'T': ['+', '-', '$', ')'],
-    'Y': ['+', '-', '$', ')'],
-    'F': ['*', '/', '+', '-', '$', ')']
-}
+stack = ['$', 'E']
+i = 0
+step = 1
 
+print("{:<5}{:<25}{:<25}{}".format("Step","Stack","Input","Action"))
 
-table = defaultdict(dict)
+while stack:
+    stack_str = ' '.join(stack)
+    input_str = ' '.join(inp[i:])
 
-for non_terminal in g:
-    for production in g[non_terminal]:
-        if production == '@':  
-            for f in follow[non_terminal]:
-                table[non_terminal][f] = '@'
+    top = stack.pop()
+    current = inp[i]
+
+    if top == current:
+        action = "Match " + current
+        i += 1
+
+    elif (top,current) in table:
+        rule = table[(top,current)]
+
+        if rule != ['@']:
+            for s in reversed(rule):
+                stack.append(s)
+            action = top + " -> " + ' '.join(rule)
         else:
-            first_chars = []
-            for symbol in production:
-                if symbol in first:
-                    first_chars += first[symbol]
-                    if '@' not in first[symbol]:
-                        break
-                else:
-                    first_chars.append(symbol)
-                    break
-            for terminal in set(first_chars) - {'@'}:
-                table[non_terminal][terminal] = production
-            if '@' in first_chars:
-                for f in follow[non_terminal]:
-                    table[non_terminal][f] = '@'
+            action = top + " -> @"
 
-# Print the LL(1) Parsing Table
-print("LL(1) Parsing Table:")
-for nt in table:
-    for t in table[nt]:
-        print("T[{0}][{1}] = {0} -> {2}".format(nt,t,table[nt][t]),end="\t")
-    print()
+    else:
+        print("String Rejected")
+        break
+
+    print("{:<5}{:<25}{:<25}{}".format(step, stack_str, input_str, action))
+    step += 1
+
+if len(stack) == 0 and i == len(inp):
+    print("\nString Accepted")
