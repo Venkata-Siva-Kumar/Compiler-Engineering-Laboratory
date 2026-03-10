@@ -1,115 +1,83 @@
-from collections import defaultdict
+# Simple LR Parser with correct ending logic
 
-# Augmented Grammar
-grammar = {
-    "S'": ["S"],     # Augmented start
-    "S": ["A B"],
-    "A": ["a"],
-    "B": ["b"]
+action = {
+    (0,'c'):'S3',(0,'d'):'S4',
+    (1,'$'):'acc',
+    (2,'c'):'S6',(2,'d'):'S7',
+    (3,'c'):'S3',(3,'d'):'S4',
+    (4,'c'):'R3',(4,'d'):'R3',
+    (5,'$'):'R1',
+    (6,'c'):'S6',(6,'d'):'S7',
+    (7,'$'):'R3',
+    (8,'c'):'R2',(8,'d'):'R2',
+    (9,'$'):'R2'
 }
 
-terminals = ['a', 'b', '$']
-non_terminals = list(grammar.keys())
-
-
-first = {
-    "S'": ['a'],
-    "S": ['a'],
-    "A": ['a'],
-    "B": ['b']
+goto = {
+    (0,'S'):1,(0,'C'):2,
+    (2,'C'):5,
+    (3,'C'):8,
+    (6,'C'):9
 }
 
+prod = {
+    1:("S","CC"),
+    2:("C","cC"),
+    3:("C","d")
+}
 
-def first_of_string(symbols):
-    result = set()
-    for sym in symbols:
-        if sym in terminals:
-            result.add(sym)
-            return result
-        result |= set(first[sym]) - {'@'}
-        if '@' not in first[sym]:
-            return result
-    result.add('@')
-    return result
+inp = input("Enter input string: ")
 
+if inp[-1] != '$':
+    print("String must end with $")
+    exit()
 
-def closure(items):
-    closure_set = set(items)
-    added = True
-    while added:
-        added = False
-        new_items = set()
-        for head, body, dot, lookahead in closure_set:
-            if dot < len(body):
-                B = body[dot]
-                if B in grammar:
-                    beta = list(body[dot + 1:]) + [lookahead]
-                    lookaheads = first_of_string(beta)
-                    for prod in grammar[B]:
-                        prod_body = tuple(prod.split())
-                        for l in lookaheads:
-                            new_item = (B, prod_body, 0, l)
-                            if new_item not in closure_set:
-                                new_items.add(new_item)
-        if new_items:
-            closure_set |= new_items
-            added = True
-    return closure_set
+stack=[0]
+i=0
+step=1
 
+print("\n{:<5}{:<15}{:<10}{}".format("Step","Stack","Input","Action"))
 
-def goto(items, symbol):
-    moved = {(h, b, d+1, l) for h, b, d, l in items if d < len(b) and b[d] == symbol}
-    return closure(moved)
+while True:
 
+    state = stack[-1]
+    sym = inp[i]
 
+    if (state,sym) not in action:
+        print("\nString is INVALID")
+        break
 
-def canonical_collection():
-    start = closure({("S'", tuple(grammar["S'"][0].split()), 0, '$')})
-    C = [start]
-    transitions = {}
-    queue = [start]
-    while queue:
-        I = queue.pop(0)
-        for X in terminals + non_terminals:
-            goto_I = goto(I, X)
-            if goto_I and goto_I not in C:
-                C.append(goto_I)
-                queue.append(goto_I)
-            if goto_I:
-                transitions[(C.index(I), X)] = C.index(goto_I)
-    return C, transitions
+    act = action[(state,sym)]
+    stack_str = "".join(map(str,stack))
+    rem = inp[i:]
 
-# Build parsing table
-def build_table(states, transitions):
-    ACTION = defaultdict(dict)
-    GOTO = defaultdict(dict)
+    # SHIFT
+    if act[0]=='S':
+        print("{:<5}{:<15}{:<10}Shift {}".format(step,stack_str,rem,act))
+        stack.append(sym)
+        stack.append(int(act[1:]))
+        i+=1
 
-    for i, state in enumerate(states):
-        for head, body, dot, lookahead in state:
-            if dot < len(body):
-                a = body[dot]
-                if a in terminals:
-                    ACTION[i][a] = ("shift", transitions[(i, a)])
-                elif a in non_terminals:
-                    GOTO[i][a] = transitions[(i, a)]
-            else:
-                if head == "G'" and lookahead == "$":
-                    ACTION[i]['$'] = ("accept",)
-                else:
-                    production = f"{head} -> {' '.join(body)}"
-                    ACTION[i][lookahead] = ("reduce", production)
-    return ACTION, GOTO
+    # REDUCE
+    elif act[0]=='R':
+        r=int(act[1:])
+        A,B=prod[r]
+        print("{:<5}{:<15}{:<10}Reduce {}->{}".format(step,stack_str,rem,A,B))
 
-# Run
-states, transitions = canonical_collection()
-ACTION, GOTO = build_table(states, transitions)
+        for _ in range(2*len(B)):
+            stack.pop()
 
-# Output
-print("\nLR(1) Parsing Table")
-print("-------------------")
-for i in sorted(ACTION.keys()):
-    for symbol in ACTION[i]:
-        print(f"ACTION[{i}][{symbol}] = {ACTION[i][symbol]}")
-for i in sorted(GOTO.keys()):
-    for symbol in GOTO[i]:
-        print(f"GOTO[{i}][{symbol}] = {GOTO[i][symbol]}")
+        state=stack[-1]
+        stack.append(A)
+        stack.append(goto[(state,A)])
+
+    # ACCEPT
+    else:
+        if i == len(inp)-1:   # ensure input fully consumed
+            print("{:<5}{:<15}{:<10}Accept".format(step,stack_str,rem))
+            print("\nString is VALID")
+        else:
+            print("\nString is INVALID")
+        break
+
+    step+=1
