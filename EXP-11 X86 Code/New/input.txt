@@ -1,0 +1,5 @@
+a=b+c
+x=y-z
+p=q*r
+m=n/o
+k=l
